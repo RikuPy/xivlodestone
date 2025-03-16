@@ -1,8 +1,11 @@
 import logging
 
 import aiohttp
+from bs4 import PageElement, Tag
 
 from xivlodestone.errors import LodestoneError, NotFoundError
+
+__all__ = ["BaseScraper"]
 
 
 class BaseScraper:
@@ -51,13 +54,26 @@ class BaseScraper:
             raise LodestoneError(e) from e
 
     @staticmethod
-    def _get_attr(element, attr) -> str | None:
+    def _get_text(element: PageElement):
+        """
+        Retrieves the text content of an element.
+
+        Args:
+            element(PageElement): The element to retrieve text from.
+
+        Returns:
+            str: The text content of the element.
+        """
+        return element.text.strip()
+
+    @staticmethod
+    def _get_attr(element: Tag, attr: str) -> str | None:
         """
         Retrieves an attribute from an element and ensures it's a string.
 
         Args:
-            element: The element to retrieve the attribute from.
-            attr: The attribute name to retrieve.
+            element(Tag): The element to retrieve the attribute from.
+            attr(str): The attribute name to retrieve.
 
         Returns:
             str | None: The attribute value, or None if not found.

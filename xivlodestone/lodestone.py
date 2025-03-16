@@ -20,6 +20,8 @@ from xivlodestone.models import (
 )
 from xivlodestone.scraper import BaseScraper
 
+__all__ = ["LodestoneScraper"]
+
 
 class LodestoneScraper(BaseScraper):
     """Async client for scraping character data from FFXIV Lodestone."""
@@ -76,7 +78,7 @@ class LodestoneScraper(BaseScraper):
 
                 # Extract character values
                 char_url: str = self._get_attr(char_link, "href")
-                char_name: str = name_elem.text.strip()
+                char_name: str = self._get_text(name_elem)
                 char_first_name, char_last_name = char_name.split(" ", 1)
                 char_world, char_datacenter = self._split_server_string(world_elem.text)
                 char_avatar: str = self._get_attr(avatar_elem, "src")
@@ -141,27 +143,25 @@ class LodestoneScraper(BaseScraper):
         level_elem = character_elem.select_one(".character__class__data")
 
         # Extract character values
-        char_name: str = name_elem.text.strip()
+        char_name: str = self._get_text(name_elem)
         char_first_name, char_last_name = char_name.split(" ", 1)
-        char_title: str | None = title_elem.text.strip() if title_elem else None
+        char_title: str | None = self._get_text(title_elem) if title_elem else None
         char_avatar: str = self._get_attr(avatar_elem, "src")
         char_portrait: str = self._get_attr(portrait_elem, "src")
-        char_bio: str = bio_elem.text.strip()
+        char_bio: str = self._get_text(bio_elem)
         char_bio: str = (
             "" if char_bio == "-" else char_bio
         )  # "-" is the Lodestone's default placeholder for empty bios
         char_world, char_datacenter = self._split_server_string(world_elem.text)
-        char_race: str
-        _clan_gender: str
         char_race, _clan_gender = race_elem.decode_contents().strip().split("<br/>")
-        char_clan: str
-        char_gender: str
         char_clan, char_gender = _clan_gender.strip().split(" / ")
         char_gender: Literal["male", "female"] = "male" if char_gender == "♂" else "female"
-        char_birthday: str = birthday_elem.text.strip()
-        char_guardian: str = guardian_elem.text.strip()
-        char_city_state: str | None = city_state_elem.text.strip() if city_state_elem else None
-        _char_gc_split: tuple[str] | None = gc_elem.text.strip().split(" / ") if gc_elem else None
+        char_birthday: str = self._get_text(birthday_elem)
+        char_guardian: str = self._get_text(guardian_elem)
+        char_city_state: str | None = self._get_text(city_state_elem) if city_state_elem else None
+        _char_gc_split: tuple[str] | None = (
+            self._get_text(gc_elem).split(" / ") if gc_elem else None
+        )
         char_gc: CharacterGrandCompany = (
             convert({"name": _char_gc_split[0], "rank": _char_gc_split[1]}, CharacterGrandCompany)
             if _char_gc_split
@@ -173,7 +173,7 @@ class LodestoneScraper(BaseScraper):
                 {
                     "id": self.id_from_free_company_url(char_fc_link),
                     "lodestone_url": f"{self.BASE_URL}{char_fc_link}",
-                    "name": fc_elem.text.strip(),
+                    "name": self._get_text(fc_elem),
                     "crest_component_urls": [self._get_attr(e, "src") for e in fc_crest_elem],
                 },
                 SimpleFreeCompany,
@@ -181,7 +181,7 @@ class LodestoneScraper(BaseScraper):
             if fc_elem
             else None
         )
-        char_level: int = int(level_elem.text.strip().replace("LEVEL ", ""))
+        char_level: int = int(self._get_text(level_elem).replace("LEVEL ", ""))
 
         return convert(
             {
@@ -231,7 +231,10 @@ class LodestoneScraper(BaseScraper):
             name_elem = elem.select_one("span.minion__name")
             minions.append(
                 convert(
-                    {"name": name_elem.text.strip(), "icon_url": self._get_attr(img_elem, "src")},
+                    {
+                        "name": self._get_text(name_elem),
+                        "icon_url": self._get_attr(img_elem, "src"),
+                    },
                     CharacterMinion,
                 )
             )
@@ -260,7 +263,10 @@ class LodestoneScraper(BaseScraper):
             name_elem = elem.select_one("span.mount__name")
             mounts.append(
                 convert(
-                    {"name": name_elem.text.strip(), "icon_url": self._get_attr(img_elem, "src")},
+                    {
+                        "name": self._get_text(name_elem),
+                        "icon_url": self._get_attr(img_elem, "src"),
+                    },
                     CharacterMount,
                 )
             )
@@ -291,7 +297,10 @@ class LodestoneScraper(BaseScraper):
             name_elem = elem.select_one("span.faceaccessory__name")
             facewear.append(
                 convert(
-                    {"name": name_elem.text.strip(), "icon_url": self._get_attr(img_elem, "src")},
+                    {
+                        "name": self._get_text(name_elem),
+                        "icon_url": self._get_attr(img_elem, "src"),
+                    },
                     CharacterFacewear,
                 )
             )
@@ -347,22 +356,24 @@ class LodestoneScraper(BaseScraper):
         fc_grand_company: str = grand_company_elem.text.split("<")[
             0
         ].strip()  # stripping the "<Allied>" tidbit out
-        fc_name: str = name_elem.text.strip()
+        fc_name: str = self._get_text(name_elem)
         fc_world, fc_datacenter = self._split_server_string(world_elem.text)
-        fc_slogan: str = slogan_elem.text.strip()
+        fc_slogan: str = self._get_text(slogan_elem)
         fc_tag: str = tag_elem.text.strip(" «»")
         _fc_formed_re = re.search(
             r"ldst_strftime\((?P<timestamp>\d{10}), 'YMD'\)", formed_elem.text
         )
         fc_formed: int = int(_fc_formed_re.group("timestamp"))
-        fc_member_count: int = int(member_count_elem.text.strip())
-        fc_rank: int = int(rank_elem.text.strip())
-        fc_estate_name: str = estate_name_elem.text.strip() if estate_name_elem else None
-        fc_estate_address: str = estate_address_elem.text.strip() if estate_address_elem else None
+        fc_member_count: int = int(self._get_text(member_count_elem))
+        fc_rank: int = int(self._get_text(rank_elem))
+        fc_estate_name: str = self._get_text(estate_name_elem) if estate_name_elem else None
+        fc_estate_address: str = (
+            self._get_text(estate_address_elem) if estate_address_elem else None
+        )
         fc_weekly_ranking, fc_monthly_ranking = self._parse_free_company_rankings(soup)
-        fc_greeting: str = greeting_elem.text.strip() if greeting_elem else None
-        fc_active: str = active_elem.text.strip()
-        fc_recruitment_status: str = recruitment_status_elem.text.strip()
+        fc_greeting: str = self._get_text(greeting_elem) if greeting_elem else None
+        fc_active: str = self._get_text(active_elem)
+        fc_recruitment_status: str = self._get_text(recruitment_status_elem)
 
         return convert(
             {
@@ -427,11 +438,7 @@ class LodestoneScraper(BaseScraper):
                 # Extract member values
                 member_url: str = f"{self.BASE_URL}{self._get_attr(link_elem, 'href')}"
                 member_avatar: str = self._get_attr(avatar_elem, "src")
-                member_first_name: str
-                member_last_name: str
-                member_first_name, member_last_name = name_elem.text.strip().split(" ", 1)
-                member_world: str
-                member_datacenter: str
+                member_first_name, member_last_name = self._get_text(name_elem).split(" ", 1)
                 member_world, member_datacenter = self._split_server_string(world_elem.text)
 
                 yield convert(
@@ -507,7 +514,7 @@ class LodestoneScraper(BaseScraper):
             img_elem = elem.select_one("img")
 
             name: str = img_elem.get("data-tooltip").split(" / ")[0].strip()
-            _level_text = elem.text.strip()
+            _level_text = self._get_text(elem)
             level: int = 0 if _level_text == "-" else int(_level_text)
             icon: str = self._get_attr(img_elem, "src")
 
@@ -531,13 +538,13 @@ class LodestoneScraper(BaseScraper):
 
         weekly_ranking_value = None
         if weekly_ranking_elem:
-            weekly_match = re.search(r"Weekly Rank:(\d+)", weekly_ranking_elem.text)
+            weekly_match = re.search(r"Weekly Rank:(\d{1,3})", weekly_ranking_elem.text)
             if weekly_match:
                 weekly_ranking_value = int(weekly_match.group(1))
 
         monthly_ranking_value = None
         if monthly_ranking_elem:
-            monthly_match = re.search(r"Monthly Rank:(\d+)", monthly_ranking_elem.text)
+            monthly_match = re.search(r"Monthly Rank:(\d{1,3})", monthly_ranking_elem.text)
             if monthly_match:
                 monthly_ranking_value = int(monthly_match.group(1))
 

@@ -4,6 +4,8 @@ from typing import Literal, Annotated
 
 from msgspec import Meta, Struct
 
+from xivlodestone.enums import JobRole
+
 __all__ = [
     "SimpleCharacter",
     "SimpleFreeCompany",
@@ -65,6 +67,7 @@ class SimpleFreeCompany(Struct, kw_only=True):
             in individual shapes and parts, in the same way that crests are designed in-game. You will need to
             stack these images together to form a full crest image for use in your application.
     """
+
     id: int
     lodestone_url: Annotated[str, Meta(pattern=fc_url_pattern)]
     name: Annotated[str, Meta(min_length=1, max_length=100)]
@@ -82,6 +85,7 @@ class CharacterGrandCompany(Struct, kw_only=True):
         name (str): The name of the grand company.
         rank (str): The rank of the character within the grand company.
     """
+
     name: Annotated[str, Meta(min_length=1, max_length=100)]
     rank: Annotated[str, Meta(min_length=1, max_length=100)]
 
@@ -98,10 +102,13 @@ class CharacterJob(Struct, kw_only=True):
             otherwise it will return a class name.
         level (int): The level of the class or job.
         icon_url (str): The URL to the icon image for the class or job.
+        role (JobRole): The role of the class or job.
     """
+
     name: Annotated[str, Meta(min_length=1, max_length=100)]
     level: Annotated[int, Meta(ge=0, le=32767)]
     icon_url: Annotated[str, Meta(pattern=img_cdn_pattern)]
+    role: JobRole
 
     def __str__(self):
         return self.name
@@ -115,6 +122,7 @@ class CharacterMinion(Struct, kw_only=True):
         name (str): The name of the minion.
         icon_url (str): The URL to the icon image for the minion.
     """
+
     name: Annotated[str, Meta(min_length=1, max_length=100)]
     icon_url: Annotated[str, Meta(pattern=img_cdn_pattern)]
 
@@ -130,6 +138,7 @@ class CharacterMount(Struct, kw_only=True):
         name (str): The name of the mount.
         icon_url (str): The URL to the icon image for the mount.
     """
+
     name: Annotated[str, Meta(min_length=1, max_length=100)]
     icon_url: Annotated[str, Meta(pattern=img_cdn_pattern)]
 
@@ -145,6 +154,7 @@ class CharacterFacewear(Struct, kw_only=True):
         name (str): The name of the facewear.
         icon_url (str): The URL to the icon image for the facewear.
     """
+
     name: Annotated[str, Meta(min_length=1, max_length=100)]
     icon_url: Annotated[str, Meta(pattern=img_cdn_pattern)]
 
@@ -171,6 +181,7 @@ class Character(SimpleCharacter, kw_only=True):
         level (int): The character's current level.
         jobs (list[CharacterJob]): A list of the character's jobs/classes.
     """
+
     title: Annotated[str, Meta(min_length=1, max_length=100)] | None = None
     portrait_url: Annotated[str, Meta(pattern=img_cdn_pattern)]
     bio: Annotated[str, Meta(max_length=3000)] = ""
@@ -209,6 +220,7 @@ class FreeCompany(SimpleFreeCompany, kw_only=True):
         active (str): The activity status of the free company.
         recruiting (bool): Whether the free company is recruiting new members or not.
     """
+
     lodestone_url: Annotated[str, Meta(pattern=fc_url_pattern)]
     grand_company: Annotated[str, Meta(min_length=1, max_length=100)]
     name: Annotated[str, Meta(min_length=1, max_length=100)]

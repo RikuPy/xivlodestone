@@ -6,6 +6,7 @@ from typing import Optional, Literal, AsyncGenerator
 from bs4 import BeautifulSoup
 from msgspec import convert
 
+from xivlodestone.enums import JobRole
 from xivlodestone.errors import LodestoneError
 from xivlodestone.models import (
     SimpleCharacter,
@@ -518,7 +519,17 @@ class LodestoneScraper(BaseScraper):
             level: int = 0 if _level_text == "-" else int(_level_text)
             icon: str = self._get_attr(img_elem, "src")
 
-            jobs.append(convert({"name": name, "level": level, "icon_url": icon}, CharacterJob))
+            jobs.append(
+                convert(
+                    {
+                        "name": name,
+                        "level": level,
+                        "icon_url": icon,
+                        "role": JobRole.from_job_name(name),
+                    },
+                    CharacterJob,
+                )
+            )
 
         return jobs
 

@@ -1,6 +1,7 @@
 import pytest
 
 from xivlodestone import LodestoneScraper
+from xivlodestone.enums import JobRole
 from xivlodestone.errors import NotFoundError
 from xivlodestone.models import Character, CharacterGrandCompany
 
@@ -42,6 +43,11 @@ async def test_get_character():
     assert character.level == 100
     assert character.jobs
     assert len(character.jobs) == 33
+
+    for job in character.jobs:
+        assert job.name
+        assert job.icon_url
+        assert job.role != JobRole.UNKNOWN
 
 
 @pytest.mark.asyncio

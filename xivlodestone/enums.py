@@ -1,5 +1,7 @@
 from enum import StrEnum
 
+__all__ = ["JobRole"]
+
 
 class JobRole(StrEnum):
     """
@@ -16,6 +18,7 @@ class JobRole(StrEnum):
         UNKNOWN (str): Unknown job role. This should not be returned unless the library needs to be updated following
             a major expansion.
     """
+
     TANK = "Tank"
     HEALER = "Healer"
     MELEE_DPS = "Melee DPS"
@@ -48,14 +51,12 @@ _JOBS_MAP = {
     "Warrior": JobRole.TANK,
     "Dark Knight": JobRole.TANK,
     "Gunbreaker": JobRole.TANK,
-
     # Healers
     "Conjurer": JobRole.HEALER,
     "White Mage": JobRole.HEALER,
     "Scholar": JobRole.HEALER,
     "Astrologian": JobRole.HEALER,
     "Sage": JobRole.HEALER,
-
     # Melee DPS
     "Pugilist": JobRole.MELEE_DPS,
     "Monk": JobRole.MELEE_DPS,
@@ -66,13 +67,11 @@ _JOBS_MAP = {
     "Samurai": JobRole.MELEE_DPS,
     "Reaper": JobRole.MELEE_DPS,
     "Viper": JobRole.MELEE_DPS,
-
     # Physical Ranged DPS
     "Archer": JobRole.PHYSICAL_RANGED_DPS,
     "Bard": JobRole.PHYSICAL_RANGED_DPS,
     "Machinist": JobRole.PHYSICAL_RANGED_DPS,
     "Dancer": JobRole.PHYSICAL_RANGED_DPS,
-
     # Magical Ranged DPS
     "Thaumaturge": JobRole.MAGICAL_RANGED_DPS,
     "Black Mage": JobRole.MAGICAL_RANGED_DPS,
@@ -81,7 +80,6 @@ _JOBS_MAP = {
     "Red Mage": JobRole.MAGICAL_RANGED_DPS,
     "Pictomancer": JobRole.MAGICAL_RANGED_DPS,
     "Blue Mage (Limited Job)": JobRole.MAGICAL_RANGED_DPS,
-
     # Disciples of Hand (Crafters)
     "Weaver": JobRole.DISCIPLE_OF_HAND,
     "Carpenter": JobRole.DISCIPLE_OF_HAND,
@@ -91,7 +89,6 @@ _JOBS_MAP = {
     "Leatherworker": JobRole.DISCIPLE_OF_HAND,
     "Alchemist": JobRole.DISCIPLE_OF_HAND,
     "Culinarian": JobRole.DISCIPLE_OF_HAND,
-
     # Disciples of Land (Gatherers)
     "Botanist": JobRole.DISCIPLE_OF_LAND,
     "Miner": JobRole.DISCIPLE_OF_LAND,

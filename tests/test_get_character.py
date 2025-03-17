@@ -49,6 +49,31 @@ async def test_get_character():
         assert job.icon_url
         assert job.role != JobRole.UNKNOWN
 
+    assert character.stats.job_type == "combat"
+    assert character.stats.strength == 197
+    assert character.stats.dexterity == 441
+    assert character.stats.vitality
+    assert character.stats.intelligence
+    assert character.stats.mind
+    assert character.stats.critical_hit_rate
+    assert character.stats.direct_hit_rate
+    assert character.stats.determination
+    assert character.stats.defense
+    assert character.stats.magic_defense
+    assert character.stats.attack_power
+    assert character.stats.skill_speed
+    assert character.stats.attack_magic_potency
+    assert character.stats.healing_magic_potency
+    assert character.stats.spell_speed
+    assert character.stats.tenacity
+    assert character.stats.piety
+    assert character.stats.craftsmanship is None
+    assert character.stats.control is None
+    assert character.stats.hp
+    assert character.stats.mp
+    assert character.stats.cp is None
+    assert character.stats.gp is None
+
 
 @pytest.mark.asyncio
 async def test_character_not_found():

@@ -18,6 +18,7 @@ from xivlodestone.models import (
     CharacterMinion,
     CharacterMount,
     CharacterFacewear,
+    CharacterStats,
 )
 from xivlodestone.scraper import BaseScraper
 
@@ -206,6 +207,7 @@ class LodestoneScraper(BaseScraper):
                 "free_company": char_fc,
                 "level": char_level,
                 "jobs": self._parse_character_jobs(soup),
+                "stats": self._parse_character_stats(soup),
             },
             Character,
         )
@@ -339,8 +341,6 @@ class LodestoneScraper(BaseScraper):
         rank_elem = soup.select_one(".heading--lead:-soup-contains('Rank') + p.freecompany__text")
         estate_name_elem = soup.select_one("p.freecompany__estate__name")
         estate_address_elem = soup.select_one("p.freecompany__estate__text")
-        weekly_ranking_elem = soup.select_one("table.character__ranking__data tr:nth-child(1) td")
-        monthly_ranking_elem = soup.select_one("table.character__ranking__data tr:nth-child(2) td")
         greeting_elem = soup.select_one("p.freecompany__estate__greeting")
         active_elem = soup.select(".heading--lead:-soup-contains('Active') + p.freecompany__text")[
             1
@@ -532,6 +532,66 @@ class LodestoneScraper(BaseScraper):
             )
 
         return jobs
+
+    def _parse_character_stats(self, soup: BeautifulSoup) -> CharacterStats:
+        """
+        Parses character stats from the soup object.
+
+        Args:
+            soup: BeautifulSoup object containing the character page's HTML.
+
+        Returns:
+            CharacterStats model containing the parsed stats.
+        """
+        stats_elem = soup.select_one(".js__character_toggle.hide")
+
+        stats = {
+            "strength": None,
+            "dexterity": None,
+            "vitality": None,
+            "intelligence": None,
+            "mind": None,
+            "critical_hit_rate": None,
+            "determination": None,
+            "direct_hit_rate": None,
+            "defense": None,
+            "magic_defense": None,
+            "attack_power": None,
+            "skill_speed": None,
+            "attack_magic_potency": None,
+            "healing_magic_potency": None,
+            "spell_speed": None,
+            "tenacity": None,
+            "piety": None,
+            "craftsmanship": None,
+            "control": None,
+            "gathering": None,
+            "perception": None,
+            "hp": self._get_text(soup.select_one("p.character__param__text__hp--en-us + span")),
+            "mp": self._get_text_or_none(
+                soup.select_one("p.character__param__text__mp--en-us + span")
+            ),
+            "gp": self._get_text_or_none(
+                soup.select_one("p.character__param__text__gp--en-us + span")
+            ),
+            "cp": self._get_text_or_none(
+                soup.select_one("p.character__param__text__cp--en-us + span")
+            ),
+        }
+
+        for elem in stats_elem.select("tr"):
+            stat_name = self._get_text(elem.select_one("th span"))
+            stat_value = self._get_text(elem.select_one("td"))
+
+            key = stat_name.lower().replace(" ", "_")
+            if key not in stats:
+                continue
+
+            stats[key] = stat_value
+
+        stats["job_type"] = "combat" if stats["mp"] else "gathering" if stats["gp"] else "crafting"
+
+        return convert(stats, CharacterStats, strict=False)
 
     # noinspection PyMethodMayBeStatic
     def _parse_free_company_rankings(self, soup: BeautifulSoup) -> tuple[int | None, int | None]:

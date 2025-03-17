@@ -67,6 +67,19 @@ class BaseScraper:
         return element.text.strip()
 
     @staticmethod
+    def _get_text_or_none(element: PageElement) -> str | None:
+        """
+        Retrieves the text content of an element, or None if the element is None.
+
+        Args:
+            element(PageElement): The element to retrieve text from.
+
+        Returns:
+            str | None: The text content of the element, or None if the element is None.
+        """
+        return element.text.strip() if element else None
+
+    @staticmethod
     def _get_attr(element: Tag, attr: str) -> str | None:
         """
         Retrieves an attribute from an element and ensures it's a string.

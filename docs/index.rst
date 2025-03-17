@@ -1,5 +1,5 @@
-Welcome to Your Project's documentation!
-========================================
+XivLodestone Documentation
+==========================
 
 .. toctree::
    :maxdepth: 2

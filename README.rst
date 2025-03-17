@@ -91,3 +91,8 @@ With xivlodestone, this can be done with just a few lines of code:
        lodestone = LodestoneScraper()
        character = await lodestone.get_character(character_id)
        if verification_code in character.bio:
+
+
+Links
+=====
+- `Documentation <https://xivlodestone.readthedocs.io/en/latest/index.html>`__

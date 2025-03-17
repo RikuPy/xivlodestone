@@ -11,6 +11,7 @@ __all__ = [
     "SimpleFreeCompany",
     "CharacterGrandCompany",
     "CharacterJob",
+    "CharacterStats",
     "CharacterMinion",
     "CharacterMount",
     "CharacterFacewear",
@@ -112,6 +113,84 @@ class CharacterJob(Struct, kw_only=True):
 
     def __str__(self):
         return self.name
+    
+    
+class CharacterStats(Struct, kw_only=True):
+    """
+    Provides the character's stats information.
+
+    Attributes:
+        job_type (str): The type of job the player was last seen as (combat, gathering, or crafting).
+        strength (int): The character's strength.
+        dexterity (int): The character's dexterity.
+        vitality (int): The character's vitality.
+        intelligence (int): The character's intelligence.
+        mind (int): The character's mind.
+        critical_hit_rate (int): The character's critical hit rate.
+        determination (int): The character's determination.
+        direct_hit_rate (int): The character's direct hit rate.
+        defense (int): The character's defense.
+        magic_defense (int): The character's magic defense.
+        attack_power (int): The character's attack power.
+        skill_speed (int): The character's skill speed.
+        attack_magic_potency (int | None): The character's attack magic potency, if they are on a combat job.
+        healing_magic_potency (int | None): The character's healing magic potency, if they are on a combat job.
+        spell_speed (int | None): The character's spell speed, if they are on a combat job.
+        tenacity (int | None): The character's tenacity, if they are on a combat job.
+        piety (int | None): The character's piety, if they are on a combat job.
+        craftsmanship (int | None): The character's craftsmanship, if they are on a crafting job.
+        control (int | None): The character's control, if they are on a crafting job.
+        gathering (int | None): The character's gathering, if they are on a gathering job.
+        perception (int | None): The character's perception, if they are on a gathering job.
+        hp (int): The character's HP.
+        mp (int | None): The character's MP, if they are on a combat job.
+        cp (int | None): The character's CP, if they are on a crafting job.
+        gp (int | None): The character's GP, if they are on a gathering job.
+    """
+    job_type: Literal["combat", "gathering", "crafting"]
+
+    # Attributes
+    strength: Annotated[int, Meta(ge=1, le=8388607)]
+    dexterity: Annotated[int, Meta(ge=1, le=8388607)]
+    vitality: Annotated[int, Meta(ge=1, le=8388607)]
+    intelligence: Annotated[int, Meta(ge=1, le=8388607)]
+    mind: Annotated[int, Meta(ge=1, le=8388607)]
+    
+    # Offensive Properties
+    critical_hit_rate: Annotated[int, Meta(ge=1, le=8388607)]
+    determination: Annotated[int, Meta(ge=1, le=8388607)]
+    direct_hit_rate: Annotated[int, Meta(ge=1, le=8388607)]
+    
+    # Defensive Properties
+    defense: Annotated[int, Meta(ge=1, le=8388607)]
+    magic_defense: Annotated[int, Meta(ge=1, le=8388607)]
+    
+    # Physical Properties
+    attack_power: Annotated[int, Meta(ge=1, le=8388607)]
+    skill_speed: Annotated[int, Meta(ge=1, le=8388607)]
+    
+    # Mental Properties
+    attack_magic_potency: Annotated[int, Meta(ge=1, le=8388607)] | None
+    healing_magic_potency: Annotated[int, Meta(ge=1, le=8388607)] | None
+    spell_speed: Annotated[int, Meta(ge=1, le=8388607)] | None
+    
+    # Role
+    tenacity: Annotated[int, Meta(ge=0, le=8388607)] | None
+    piety: Annotated[int, Meta(ge=0, le=8388607)] | None
+
+    # Crafting
+    craftsmanship: Annotated[int, Meta(ge=1, le=8388607)] | None
+    control: Annotated[int, Meta(ge=1, le=8388607)] | None
+
+    # Gathering
+    gathering: Annotated[int, Meta(ge=1, le=8388607)] | None
+    perception: Annotated[int, Meta(ge=1, le=8388607)] | None
+
+    # Health / etc.
+    hp: Annotated[int, Meta(ge=1, le=8388607)]
+    mp: Annotated[int, Meta(ge=1, le=8388607)] | None
+    cp: Annotated[int, Meta(ge=1, le=8388607)] | None
+    gp: Annotated[int, Meta(ge=1, le=8388607)] | None
 
 
 class CharacterMinion(Struct, kw_only=True):
@@ -195,6 +274,7 @@ class Character(SimpleCharacter, kw_only=True):
     free_company: SimpleFreeCompany | None = None
     level: Annotated[int, Meta(ge=1, le=32767)]
     jobs: list[CharacterJob]
+    stats: CharacterStats
 
 
 class FreeCompany(SimpleFreeCompany, kw_only=True):

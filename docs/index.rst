@@ -8,6 +8,7 @@ XivLodestone Documentation
    readme
    lodestone
    models
+   enums
 
 Indices and tables
 ==================

@@ -1,19 +1,19 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class JobRole(Enum):
+class JobRole(StrEnum):
     """
-    Represents the role of class or job.
+    Represents the role of a class or job.
 
     Attributes:
-        TANK (str): Tank job type.
-        HEALER (str): Healer job type.
-        MELEE_DPS (str): Melee DPS job type.
-        PHYSICAL_RANGED_DPS (str): Physical ranged DPS job type.
-        MAGICAL_RANGED_DPS (str): Magical ranged DPS job type.
-        DISCIPLE_OF_HAND (str): Crafter job type.
-        DISCIPLE_OF_LAND (str): Gatherer job type.
-        UNKNOWN (str): Unknown job type. This should not be returned unless the library needs to be updated following
+        TANK (str): Tank job role.
+        HEALER (str): Healer job role.
+        MELEE_DPS (str): Melee DPS job role.
+        PHYSICAL_RANGED_DPS (str): Physical ranged DPS job role.
+        MAGICAL_RANGED_DPS (str): Magical ranged DPS job role.
+        DISCIPLE_OF_HAND (str): Crafter job role.
+        DISCIPLE_OF_LAND (str): Gatherer job role.
+        UNKNOWN (str): Unknown job role. This should not be returned unless the library needs to be updated following
             a major expansion.
     """
     TANK = "Tank"

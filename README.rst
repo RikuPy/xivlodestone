@@ -1,4 +1,4 @@
-xivlodestone
+Overview
 ============
 
 xivlodestone is a Python library that interacts with the
@@ -15,7 +15,7 @@ be stable or feature-complete. Breaking changes may occur anytime, and
 the API may change without notice.
 
 Installation
-------------
+============
 
 You can install this library using pip:
 
@@ -24,7 +24,7 @@ You can install this library using pip:
    pip install xivlodestone
 
 Usage
------
+=====
 
 You can use the ``search_character`` method to search for a character.
 With a correctly spelled character name and world, this is usually a

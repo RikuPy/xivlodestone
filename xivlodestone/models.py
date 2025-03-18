@@ -274,6 +274,7 @@ class Character(SimpleCharacter, kw_only=True):
     free_company: SimpleFreeCompany | None = None
     level: Annotated[int, Meta(ge=1, le=32767)]
     jobs: list[CharacterJob]
+    current_job: CharacterJob | None = None
     stats: CharacterStats
 
 

@@ -185,6 +185,7 @@ class LodestoneScraper(BaseScraper):
         )
         char_level: int = int(self._get_text(level_elem).replace("LEVEL ", ""))
 
+        jobs = self._parse_character_jobs(soup)
         return convert(
             {
                 "id": character_id,
@@ -206,7 +207,8 @@ class LodestoneScraper(BaseScraper):
                 "grand_company": char_gc,
                 "free_company": char_fc,
                 "level": char_level,
-                "jobs": self._parse_character_jobs(soup),
+                "jobs": jobs,
+                "current_job": self._parse_current_job(soup, jobs),
                 "stats": self._parse_character_stats(soup),
             },
             Character,
@@ -532,6 +534,25 @@ class LodestoneScraper(BaseScraper):
             )
 
         return jobs
+
+    def _parse_current_job(self, soup: BeautifulSoup, jobs: list[CharacterJob]) -> CharacterJob | None:
+        """
+        Figures out what our current job is by cross-referencing icon URL's on the page.
+        Args:
+            soup(BeautifulSoup): BeautifulSoup object containing the character page's HTML.
+            jobs(list[CharacterJob]): List of jobs to check against.
+
+        Returns:
+            CharacterJob | None: The currently active class or job on the character. This should virtually never
+                return None, but I can imagine a fringe case scenario where someone logs out with no job stone
+                equipped even though their job is unlocked. Theoretically, this could cause them to have an icon
+                for the class, not the job listed. It could be possible to address this later, but it's such a niche
+                case that it's not worth it for now.
+        """
+        current_job_icon_url = self._get_attr(soup.select_one(".character__class_icon > img"), "src")
+        for job in jobs:
+            if job.icon_url == current_job_icon_url:
+                return job
 
     def _parse_character_stats(self, soup: BeautifulSoup) -> CharacterStats:
         """

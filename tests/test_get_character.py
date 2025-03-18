@@ -43,6 +43,8 @@ async def test_get_character():
     assert character.level == 100
     assert character.jobs
     assert len(character.jobs) == 33
+    assert character.current_job
+    assert character.current_job.name == "Black Mage"
 
     for job in character.jobs:
         assert job.name

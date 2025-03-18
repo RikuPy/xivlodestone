@@ -130,7 +130,7 @@ class LodestoneScraper(BaseScraper):
         race_elem = character_elem.select_one(
             '.character-block__box:has(.character-block__title:-soup-contains("Race/Clan/Gender")) .character-block__name'
         )
-        birthday_elem = character_elem.select_one(".character-block__birth")
+        nameday_elem = character_elem.select_one(".character-block__birth")
         guardian_elem = character_elem.select_one(
             '.character-block__box:has(.character-block__title:-soup-contains("Guardian")) .character-block__name'
         )
@@ -158,7 +158,7 @@ class LodestoneScraper(BaseScraper):
         char_race, _clan_gender = race_elem.decode_contents().strip().split("<br/>")
         char_clan, char_gender = _clan_gender.strip().split(" / ")
         char_gender: Literal["male", "female"] = "male" if char_gender == "♂" else "female"
-        char_birthday: str = self._get_text(birthday_elem)
+        char_nameday: str = self._get_text(nameday_elem)
         char_guardian: str = self._get_text(guardian_elem)
         char_city_state: str | None = self._get_text(city_state_elem) if city_state_elem else None
         _char_gc_split: tuple[str] | None = (
@@ -201,7 +201,7 @@ class LodestoneScraper(BaseScraper):
                 "gender": char_gender,
                 "race": char_race,
                 "clan": char_clan,
-                "birthday": char_birthday,
+                "nameday": char_nameday,
                 "guardian": char_guardian,
                 "city_state": char_city_state,
                 "grand_company": char_gc,

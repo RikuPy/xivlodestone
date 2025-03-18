@@ -252,7 +252,7 @@ class Character(SimpleCharacter, kw_only=True):
         gender (str): The character's gender.
         race (str): The character's race.
         clan (str): The character's clan or tribe.
-        birthday (str): The character's birthday.
+        nameday (str): The character's nameday (in-game birthday).
         guardian (str): The character's guardian.
         city_state (str): The character's city-state.
         grand_company (CharacterGrandCompany | None): The character's grand company information.
@@ -267,7 +267,7 @@ class Character(SimpleCharacter, kw_only=True):
     gender: Literal["male", "female"]
     race: Annotated[str, Meta(min_length=1, max_length=100)]
     clan: Annotated[str, Meta(min_length=1, max_length=100)]
-    birthday: Annotated[str, Meta(min_length=1, max_length=100)]
+    nameday: Annotated[str, Meta(min_length=1, max_length=100)]
     guardian: Annotated[str, Meta(min_length=1, max_length=100)]
     city_state: Annotated[str, Meta(min_length=1, max_length=100)]
     grand_company: CharacterGrandCompany | None = None

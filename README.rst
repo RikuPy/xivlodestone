@@ -69,7 +69,7 @@ character.
        characters = [c async for c in lodestone.search_characters("Yoshi'p Sampo", "Mandragora")]
        character = await lodestone.get_character(characters[0])  # Also accepts a character ID
        print(f"{character.name} from {character.world}")
-       print(f"Birthday: {character.birthday}")
+       print(f"Nameday: {character.nameday}")
        print(f"Bio: {character.bio}")
        if character.free_company:
            print(f"Free Company: {character.free_company.name}")

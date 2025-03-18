@@ -33,7 +33,7 @@ async def test_get_character():
     assert character.gender == "female"
     assert character.race == "Lalafell"
     assert character.clan == "Dunesfolk"
-    assert character.birthday == "1st Sun of the 1st Astral Moon"
+    assert character.nameday == "1st Sun of the 1st Astral Moon"
     assert character.guardian == "Halone, the Fury"
     assert character.city_state == "Ul'dah"
     assert isinstance(character.grand_company, CharacterGrandCompany)

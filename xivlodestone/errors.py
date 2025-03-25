@@ -6,3 +6,8 @@ class LodestoneError(Exception):
 class NotFoundError(LodestoneError):
     """Thrown when a requested resource (such as a character or free company) cannot be found."""
     ...
+
+
+class MaintenanceError(LodestoneError):
+    """Thrown when the Lodestone is undergoing maintenance."""
+    ...

@@ -3,7 +3,7 @@ import logging
 import aiohttp
 from bs4 import PageElement, Tag
 
-from xivlodestone.errors import LodestoneError, NotFoundError
+from xivlodestone.errors import LodestoneError, NotFoundError, MaintenanceError
 
 __all__ = ["BaseScraper"]
 
@@ -42,11 +42,19 @@ class BaseScraper:
             async with aiohttp.ClientSession(headers=headers) as session:
                 async with session.get(url) as response:
                     if response.status != 200:
-                        if response.status == 404:
-                            raise NotFoundError("The requested resource could not be found", url)
-                        raise LodestoneError(
-                            f"Received a {response.status} error from the Lodestone", url
-                        )
+                        match response.status:
+                            case 404:
+                                raise NotFoundError(
+                                    "The requested resource could not be found", url
+                                )
+                            case 503:
+                                raise MaintenanceError(
+                                    "The Lodestone is currently undergoing maintenance", url
+                                )
+                            case _:
+                                raise LodestoneError(
+                                    f"Received a {response.status} error from the Lodestone", url
+                                )
                     return await response.text()
         except LodestoneError:
             raise

@@ -114,7 +114,7 @@ class LodestoneScraper(BaseScraper):
         Returns:
             Character model containing detailed information about the character.
         """
-        character_id = character.id if isinstance(character, SimpleCharacter) else character
+        character_id = character.id if isinstance(character, SimpleCharacter) else int(character)
         url = f"{self.CHARACTER_URL}/{character_id}/"
         soup = BeautifulSoup(await self._fetch_page(url), "html.parser")
 
@@ -224,7 +224,7 @@ class LodestoneScraper(BaseScraper):
         Returns:
             list[CharacterMinion]: A list of CharacterMinion models representing the character's minions.
         """
-        character_id = character.id if isinstance(character, SimpleCharacter) else character
+        character_id = character.id if isinstance(character, SimpleCharacter) else int(character)
         url = f"{self.CHARACTER_URL}/{character_id}/minion/"
         soup = BeautifulSoup(await self._fetch_page(url, mobile=True), "html.parser")
 
@@ -256,7 +256,7 @@ class LodestoneScraper(BaseScraper):
         Returns:
             list[CharacterMount]: A list of CharacterMount models representing the character's mounts.
         """
-        character_id = character.id if isinstance(character, SimpleCharacter) else character
+        character_id = character.id if isinstance(character, SimpleCharacter) else int(character)
         url = f"{self.CHARACTER_URL}/{character_id}/mount/"
         soup = BeautifulSoup(await self._fetch_page(url, mobile=True), "html.parser")
 
@@ -290,7 +290,7 @@ class LodestoneScraper(BaseScraper):
         Returns:
             list[CharacterFacewear]: A list of CharacterFacewear models representing the character's facewear items.
         """
-        character_id = character.id if isinstance(character, SimpleCharacter) else character
+        character_id = character.id if isinstance(character, SimpleCharacter) else int(character)
         url = f"{self.CHARACTER_URL}/{character_id}/faceaccessory/"
         soup = BeautifulSoup(await self._fetch_page(url, mobile=True), "html.parser")
 
@@ -323,7 +323,7 @@ class LodestoneScraper(BaseScraper):
             FreeCompany model containing detailed information about the free company.
         """
         free_company_id = (
-            free_company.id if isinstance(free_company, SimpleFreeCompany) else free_company
+            free_company.id if isinstance(free_company, SimpleFreeCompany) else int(free_company)
         )
         url = f"{self.FREE_COMPANY_URL}/{free_company_id}/"
         soup = BeautifulSoup(await self._fetch_page(url), "html.parser")
@@ -419,7 +419,7 @@ class LodestoneScraper(BaseScraper):
         Returns:
             AsyncGenerator[SimpleCharacter, None]: An async generator yielding SimpleCharacter models.
         """
-        fc_id = free_company.id if isinstance(free_company, FreeCompany) else free_company
+        fc_id = free_company.id if isinstance(free_company, FreeCompany) else int(free_company)
         url = f"{self.FREE_COMPANY_URL}/{fc_id}/member/"
         next_page = url
 

@@ -462,6 +462,16 @@ class LodestoneScraper(BaseScraper):
                     next_page = None
                     break
 
+    async def ping(self):
+        """
+        Pings the Lodestone server to check if it is up.
+
+        Raises:
+            MaintenanceError: If the Lodestone server is down for maintenance.
+            LodestoneError: If the Lodestone server is otherwise unreachable.
+        """
+        await self._fetch_page(self.LODESTONE_URL)
+
     @classmethod
     def id_from_character_url(cls, url: str) -> int:
         """

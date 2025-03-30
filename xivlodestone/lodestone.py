@@ -353,7 +353,8 @@ class LodestoneScraper(BaseScraper):
         fc_crest_elem = soup.select(
             ".character__freecompany__crest__image img, .entry__freecompany__crest__image img"
         )
-        # todo: focus, seeking?
+        fc_focus_elem = soup.select(".freecompany__focus_icon:first-of-type li > p")
+        fc_seeking_elem = soup.select(".freecompany__focus_icon--role li > p")
 
         # Extract FC values
         fc_grand_company: str = grand_company_elem.text.split("<")[
@@ -377,6 +378,8 @@ class LodestoneScraper(BaseScraper):
         fc_greeting: str = self._get_text(greeting_elem) if greeting_elem else None
         fc_active: str = self._get_text(active_elem)
         fc_recruitment_status: str = self._get_text(recruitment_status_elem)
+        fc_focus: list[str] = [self._get_text(e) for e in fc_focus_elem]
+        fc_seeking: list[str] = [self._get_text(e) for e in fc_seeking_elem]
 
         return convert(
             {
@@ -398,6 +401,8 @@ class LodestoneScraper(BaseScraper):
                 "greeting": fc_greeting,
                 "active": fc_active,
                 "recruiting": fc_recruitment_status.lower() == "open",
+                "focus": fc_focus,
+                "seeking": fc_seeking,
                 "crest_component_urls": [self._get_attr(e, "src") for e in fc_crest_elem],
             },
             FreeCompany,

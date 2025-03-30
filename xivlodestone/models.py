@@ -319,3 +319,5 @@ class FreeCompany(SimpleFreeCompany, kw_only=True):
     greeting: Annotated[str, Meta(min_length=1, max_length=3000)] | None
     active: Annotated[str, Meta(min_length=1, max_length=100)]
     recruiting: bool
+    focus: list[str]
+    seeking: list[str]

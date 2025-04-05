@@ -442,7 +442,7 @@ class LodestoneScraper(BaseScraper):
             AsyncGenerator[SimpleCharacter, None]: An async generator yielding SimpleCharacter models.
         """
         fc_id = free_company.id if isinstance(free_company, FreeCompany) else int(free_company)
-        url = f"{self.FREE_COMPANY_URL}{fc_id}/member/"
+        url = f"{self.FREE_COMPANY_URL}/{fc_id}/member/"
 
         async with aiohttp.ClientSession() as session:
             index = 0

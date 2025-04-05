@@ -3,6 +3,7 @@ import urllib.parse
 from datetime import datetime
 from typing import Optional, Literal, AsyncGenerator
 
+import aiohttp
 from bs4 import BeautifulSoup
 from msgspec import convert
 
@@ -56,53 +57,54 @@ class LodestoneScraper(BaseScraper):
         }
         if world:
             params["worldname"] = world.title()
-        url = f"{self.CHARACTER_URL}/?{urllib.parse.urlencode(params)}"
-        next_page = url
+        url = f"{self.CHARACTER_URL}?{urllib.parse.urlencode(params)}"
 
         index = 0
-        while next_page:
-            soup = BeautifulSoup(await self._fetch_page(next_page), "html.parser")
-            # Make sure we have results
-            if soup.select_one(".parts__zero:-soup-contains('Your search yielded no results')"):
-                return
+        next_page = url
+        async with aiohttp.ClientSession() as session:
+            while next_page:
+                soup = BeautifulSoup(await self._fetch_page(session, next_page), "html.parser")
+                # Make sure we have results
+                if soup.select_one(".parts__zero:-soup-contains('Your search yielded no results')"):
+                    return
 
-            next_page = self._get_attr(soup.select_one(".btn__pager .btn__pager__next"), "href")
-            if not next_page.startswith(self.CHARACTER_URL):
-                next_page = None
-
-            character_elements = soup.select(".ldst__main .entry")
-            for elem in character_elements:
-                # Grab character elements
-                char_link = elem.select_one("a.entry__link")
-                name_elem = elem.select_one(".entry__name")
-                world_elem = elem.select_one(".entry__world")
-                avatar_elem = elem.select_one(".entry__chara__face img")
-
-                # Extract character values
-                char_url: str = self._get_attr(char_link, "href")
-                char_name: str = self._get_text(name_elem)
-                char_first_name, char_last_name = char_name.split(" ", 1)
-                char_world, char_datacenter = self._split_server_string(world_elem.text)
-                char_avatar: str = self._get_attr(avatar_elem, "src")
-
-                # Add to results
-                yield convert(
-                    {
-                        "id": self.id_from_character_url(f"{self.BASE_URL}{char_url}"),
-                        "lodestone_url": f"{self.BASE_URL}{char_url}",
-                        "first_name": char_first_name,
-                        "last_name": char_last_name,
-                        "world": char_world,
-                        "datacenter": char_datacenter,
-                        "avatar_url": char_avatar,
-                    },
-                    SimpleCharacter,
-                )
-
-                index += 1
-                if limit and index >= limit:
+                next_page = self._get_attr(soup.select_one(".btn__pager .btn__pager__next"), "href")
+                if not next_page.startswith(self.CHARACTER_URL):
                     next_page = None
-                    break
+
+                character_elements = soup.select(".ldst__main .entry")
+                for elem in character_elements:
+                    # Grab character elements
+                    char_link = elem.select_one("a.entry__link")
+                    name_elem = elem.select_one(".entry__name")
+                    world_elem = elem.select_one(".entry__world")
+                    avatar_elem = elem.select_one(".entry__chara__face img")
+
+                    # Extract character values
+                    char_url: str = self._get_attr(char_link, "href")
+                    char_name: str = self._get_text(name_elem)
+                    char_first_name, char_last_name = char_name.split(" ", 1)
+                    char_world, char_datacenter = self._split_server_string(world_elem.text)
+                    char_avatar: str = self._get_attr(avatar_elem, "src")
+
+                    # Add to results
+                    yield convert(
+                        {
+                            "id": self.id_from_character_url(f"{self.BASE_URL}{char_url}"),
+                            "lodestone_url": f"{self.BASE_URL}{char_url}",
+                            "first_name": char_first_name,
+                            "last_name": char_last_name,
+                            "world": char_world,
+                            "datacenter": char_datacenter,
+                            "avatar_url": char_avatar,
+                        },
+                        SimpleCharacter,
+                    )
+
+                    index += 1
+                    if limit and index >= limit:
+                        next_page = None
+                        break
 
     async def get_character(self, character: SimpleCharacter | int) -> Character:
         """
@@ -116,7 +118,8 @@ class LodestoneScraper(BaseScraper):
         """
         character_id = character.id if isinstance(character, SimpleCharacter) else int(character)
         url = f"{self.CHARACTER_URL}/{character_id}/"
-        soup = BeautifulSoup(await self._fetch_page(url), "html.parser")
+        async with aiohttp.ClientSession() as session:
+            soup = BeautifulSoup(await self._fetch_page(session, url), "html.parser")
 
         character_elem = soup.select_one("#character")
 
@@ -225,8 +228,11 @@ class LodestoneScraper(BaseScraper):
             list[CharacterMinion]: A list of CharacterMinion models representing the character's minions.
         """
         character_id = character.id if isinstance(character, SimpleCharacter) else int(character)
-        url = f"{self.CHARACTER_URL}/{character_id}/minion/"
-        soup = BeautifulSoup(await self._fetch_page(url, mobile=True), "html.parser")
+        async with aiohttp.ClientSession() as session:
+            soup = BeautifulSoup(
+                await self._fetch_page(session, f"{self.CHARACTER_URL}/{character_id}/minion/", mobile=True),
+                "html.parser",
+            )
 
         # Grab minion elements
         minions = []
@@ -258,7 +264,11 @@ class LodestoneScraper(BaseScraper):
         """
         character_id = character.id if isinstance(character, SimpleCharacter) else int(character)
         url = f"{self.CHARACTER_URL}/{character_id}/mount/"
-        soup = BeautifulSoup(await self._fetch_page(url, mobile=True), "html.parser")
+        async with aiohttp.ClientSession() as session:
+            soup = BeautifulSoup(
+                await self._fetch_page(session, url, mobile=True),
+                "html.parser",
+            )
 
         # Grab minion elements
         mounts = []
@@ -292,7 +302,11 @@ class LodestoneScraper(BaseScraper):
         """
         character_id = character.id if isinstance(character, SimpleCharacter) else int(character)
         url = f"{self.CHARACTER_URL}/{character_id}/faceaccessory/"
-        soup = BeautifulSoup(await self._fetch_page(url, mobile=True), "html.parser")
+        async with aiohttp.ClientSession() as session:
+            soup = BeautifulSoup(
+                await self._fetch_page(session, url, mobile=True),
+                "html.parser",
+            )
 
         # Grab minion elements
         facewear = []
@@ -326,7 +340,10 @@ class LodestoneScraper(BaseScraper):
             free_company.id if isinstance(free_company, SimpleFreeCompany) else int(free_company)
         )
         url = f"{self.FREE_COMPANY_URL}/{free_company_id}/"
-        soup = BeautifulSoup(await self._fetch_page(url), "html.parser")
+        async with aiohttp.ClientSession() as session:
+            soup = BeautifulSoup(
+                await self._fetch_page(session, url), "html.parser"
+            )
 
         # Grab FC elements
         grand_company_elem = soup.select_one(".entry__freecompany__gc")
@@ -425,47 +442,50 @@ class LodestoneScraper(BaseScraper):
             AsyncGenerator[SimpleCharacter, None]: An async generator yielding SimpleCharacter models.
         """
         fc_id = free_company.id if isinstance(free_company, FreeCompany) else int(free_company)
-        url = f"{self.FREE_COMPANY_URL}/{fc_id}/member/"
-        next_page = url
+        url = f"{self.FREE_COMPANY_URL}{fc_id}/member/"
 
-        index = 0
-        while next_page:
-            soup = BeautifulSoup(await self._fetch_page(next_page), "html.parser")
-            next_page = self._get_attr(soup.select_one(".btn__pager .btn__pager__next"), "href")
-            if not next_page.startswith(url):
-                next_page = None
-
-            member_elements = soup.select(".ldst__window ul li.entry")
-            for elem in member_elements:
-                # Grab member elements
-                link_elem = elem.select_one("a.entry__bg")
-                avatar_elem = elem.select_one(".entry__chara__face > img")
-                name_elem = elem.select_one(".entry__freecompany__center > .entry__name")
-                world_elem = elem.select_one(".entry__freecompany__center > .entry__world")
-
-                # Extract member values
-                member_url: str = f"{self.BASE_URL}{self._get_attr(link_elem, 'href')}"
-                member_avatar: str = self._get_attr(avatar_elem, "src")
-                member_first_name, member_last_name = self._get_text(name_elem).split(" ", 1)
-                member_world, member_datacenter = self._split_server_string(world_elem.text)
-
-                yield convert(
-                    {
-                        "id": fc_id,
-                        "lodestone_url": member_url,
-                        "first_name": member_first_name,
-                        "last_name": member_last_name,
-                        "world": member_world,
-                        "datacenter": member_datacenter,
-                        "avatar_url": member_avatar,
-                    },
-                    SimpleCharacter,
+        async with aiohttp.ClientSession() as session:
+            index = 0
+            next_page = url
+            while next_page:
+                soup = BeautifulSoup(await self._fetch_page(session, next_page), "html.parser")
+                next_page = self._get_attr(
+                    soup.select_one(".btn__pager .btn__pager__next"), "href"
                 )
-
-                index += 1
-                if limit and index >= limit:
+                if not next_page.startswith(url):
                     next_page = None
-                    break
+
+                member_elements = soup.select(".ldst__window ul li.entry")
+                for elem in member_elements:
+                    # Grab member elements
+                    link_elem = elem.select_one("a.entry__bg")
+                    avatar_elem = elem.select_one(".entry__chara__face > img")
+                    name_elem = elem.select_one(".entry__freecompany__center > .entry__name")
+                    world_elem = elem.select_one(".entry__freecompany__center > .entry__world")
+
+                    # Extract member values
+                    member_url: str = f"{self.BASE_URL}{self._get_attr(link_elem, 'href')}"
+                    member_avatar: str = self._get_attr(avatar_elem, "src")
+                    member_first_name, member_last_name = self._get_text(name_elem).split(" ", 1)
+                    member_world, member_datacenter = self._split_server_string(world_elem.text)
+
+                    yield convert(
+                        {
+                            "id": fc_id,
+                            "lodestone_url": member_url,
+                            "first_name": member_first_name,
+                            "last_name": member_last_name,
+                            "world": member_world,
+                            "datacenter": member_datacenter,
+                            "avatar_url": member_avatar,
+                        },
+                        SimpleCharacter,
+                    )
+
+                    index += 1
+                    if limit and index >= limit:
+                        next_page = None
+                        break
 
     async def ping(self):
         """
@@ -475,7 +495,8 @@ class LodestoneScraper(BaseScraper):
             MaintenanceError: If the Lodestone server is down for maintenance.
             LodestoneError: If the Lodestone server is otherwise unreachable.
         """
-        await self._fetch_page(self.LODESTONE_URL)
+        async with aiohttp.ClientSession() as session:
+            await self._fetch_page(session, self.LODESTONE_URL)
 
     @classmethod
     def id_from_character_url(cls, url: str) -> int:
@@ -550,7 +571,9 @@ class LodestoneScraper(BaseScraper):
 
         return jobs
 
-    def _parse_current_job(self, soup: BeautifulSoup, jobs: list[CharacterJob]) -> CharacterJob | None:
+    def _parse_current_job(
+        self, soup: BeautifulSoup, jobs: list[CharacterJob]
+    ) -> CharacterJob | None:
         """
         Figures out what our current job is by cross-referencing icon URL's on the page.
         Args:
@@ -564,7 +587,9 @@ class LodestoneScraper(BaseScraper):
                 for the class, not the job listed. It could be possible to address this later, but it's such a niche
                 case that it's not worth it for now.
         """
-        current_job_icon_url = self._get_attr(soup.select_one(".character__class_icon > img"), "src")
+        current_job_icon_url = self._get_attr(
+            soup.select_one(".character__class_icon > img"), "src"
+        )
         for job in jobs:
             if job.icon_url == current_job_icon_url:
                 return job

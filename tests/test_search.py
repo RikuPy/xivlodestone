@@ -5,10 +5,8 @@ from xivlodestone.models import SimpleCharacter
 
 
 @pytest.mark.asyncio
-async def test_search_characters_by_name():
+async def test_search_characters_by_name(lodestone: LodestoneScraper):
     """Test basic character search functionality"""
-    lodestone = LodestoneScraper()
-
     characters = [c async for c in lodestone.search_characters("Yoshi'p Sampo")]
     assert len(characters) > 1
 
@@ -28,20 +26,16 @@ async def test_search_characters_by_name():
 
 
 @pytest.mark.asyncio
-async def test_search_characters_by_exact_name_and_world():
+async def test_search_characters_by_exact_name_and_world(lodestone: LodestoneScraper):
     """Test character search by name and world"""
-    lodestone = LodestoneScraper()
-
     characters = [c async for c in lodestone.search_characters("Yoshi'p Sampo", "Mandragora")]
     assert len(characters) == 1
     assert characters[0].id == 13822072
 
 
 @pytest.mark.asyncio
-async def test_search_characters_limited():
+async def test_search_characters_limited(lodestone: LodestoneScraper):
     """Test character search with a limit"""
-    lodestone = LodestoneScraper()
-
     characters = [c async for c in lodestone.search_characters("G'raha", limit=235)]
     for character in characters:
         assert character.id > 0
@@ -57,10 +51,8 @@ async def test_search_characters_limited():
 
 
 @pytest.mark.asyncio
-async def test_search_characters_empty():
+async def test_search_characters_empty(lodestone: LodestoneScraper):
     """Test that empty search returns no results"""
-    lodestone = LodestoneScraper()
-
     characters = [c async for c in lodestone.search_characters("_")]
     assert len(characters) == 0
 

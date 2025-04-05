@@ -4,10 +4,8 @@ from xivlodestone import LodestoneScraper
 
 
 @pytest.mark.asyncio
-async def test_get_character_mounts():
+async def test_get_character_mounts(lodestone: LodestoneScraper):
     """Test fetching a character's mounts"""
-    lodestone = LodestoneScraper()
-
     mounts = await lodestone.character_mounts(13822072)
     assert len(mounts) >= 13
 

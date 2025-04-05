@@ -7,10 +7,8 @@ from xivlodestone.models import Character, CharacterGrandCompany
 
 
 @pytest.mark.asyncio
-async def test_get_character():
+async def test_get_character(lodestone: LodestoneScraper):
     """Test fetching a character by ID"""
-    lodestone = LodestoneScraper()
-
     character = await lodestone.get_character(13822072)
     assert isinstance(character, Character)
     assert isinstance(character.id, int)

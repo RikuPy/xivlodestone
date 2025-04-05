@@ -12,11 +12,14 @@ class BaseScraper:
     def __init__(self):
         self._logger = logging.getLogger()
 
-    async def _fetch_page(self, url: str, *, mobile: bool = False) -> str:
+    async def _fetch_page(
+        self, session: aiohttp.ClientSession, url: str, *, mobile: bool = False
+    ) -> str:
         """
         Downloads the HTML output of a given URL.
 
         Args:
+            session (aiohttp.ClientSession): The aiohttp session to use for the request.
             url (str): The URL to fetch.
             mobile (bool): Sets a mobile user agent if True. The mobile lodestone website has
                 a different layout than the desktop version, and makes scraping easier on some
@@ -39,23 +42,22 @@ class BaseScraper:
         }
 
         try:
-            async with aiohttp.ClientSession(headers=headers) as session:
-                async with session.get(url) as response:
-                    if response.status != 200:
-                        match response.status:
-                            case 404:
-                                raise NotFoundError(
-                                    "The requested resource could not be found", url
-                                )
-                            case 503:
-                                raise MaintenanceError(
-                                    "The Lodestone is currently undergoing maintenance", url
-                                )
-                            case _:
-                                raise LodestoneError(
-                                    f"Received a {response.status} error from the Lodestone", url
-                                )
-                    return await response.text()
+            async with session.get(url, headers=headers) as response:
+                if response.status != 200:
+                    match response.status:
+                        case 404:
+                            raise NotFoundError(
+                                "The requested resource could not be found", url
+                            )
+                        case 503:
+                            raise MaintenanceError(
+                                "The Lodestone is currently undergoing maintenance", url
+                            )
+                        case _:
+                            raise LodestoneError(
+                                f"Received a {response.status} error from the Lodestone", url
+                            )
+                return await response.text()
         except LodestoneError:
             raise
         except Exception as e:

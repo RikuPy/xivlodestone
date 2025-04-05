@@ -4,10 +4,8 @@ from xivlodestone import LodestoneScraper
 
 
 @pytest.mark.asyncio
-async def test_get_character_minions():
+async def test_get_character_minions(lodestone: LodestoneScraper):
     """Test fetching a character's minions"""
-    lodestone = LodestoneScraper()
-
     minions = await lodestone.character_minions(13822072)
     assert len(minions) >= 3
 

@@ -10,7 +10,7 @@ __all__ = ["BaseScraper"]
 
 class BaseScraper:
     def __init__(self):
-        self._logger = logging.getLogger()
+        self._logger = logging.getLogger(__name__)
 
     async def _fetch_page(
         self, session: aiohttp.ClientSession, url: str, *, mobile: bool = False
